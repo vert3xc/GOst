@@ -4,7 +4,7 @@ Copyright © 2026 NAME HERE <EMAIL ADDRESS>
 */
 package main
 
-import "github.com/vert3xc/GOst/cmd"
+import "github.com/vert3xc/GOst/gost-cli/cmd"
 
 func main() {
 	cmd.Execute()
