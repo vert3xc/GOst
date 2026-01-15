@@ -91,7 +91,7 @@ func (pr *GostPrivKey) SignMessage(rand io.Reader, digest []byte, opts crypto.Si
 	return pr.Sign(rand, hashdigest, opts)
 }
 
-func (pr *GostPrivKey) TestSign(e, k *big.Int) ([]byte, error) {
+func (pr *GostPrivKey) TestSign(e, k *big.Int) (*big.Int, *big.Int, error) {
 	
 	r := new(big.Int).SetInt64(0)
 	s := new(big.Int).SetInt64(0)
@@ -101,12 +101,8 @@ func (pr *GostPrivKey) TestSign(e, k *big.Int) ([]byte, error) {
 	r.Mod(r, pr.ParentCurve.Q)
 	s.Add(new(big.Int).Mul(r, pr.D), new(big.Int).Mul(k, e)).Mod(s, pr.ParentCurve.Q)
 
-	size := (pr.ParentCurve.BitSize + 7) / 8
-    sig := make([]byte, 2*size)
 
-    s.FillBytes(sig[:size])
-    r.FillBytes(sig[size:])
-	return sig, nil
+	return s, r, nil
 }
 
 func Verify(pub *GostPubKey, digest, sig []byte) bool {
@@ -144,10 +140,7 @@ func VerifyMessage(pub *GostPubKey, digest, sig []byte) bool {
 	return Verify(pub, rev, sig)
 }
 
-func TestVerify(pub *GostPubKey, e *big.Int, sig []byte) bool {
-	size := (pub.ParentCurve.BitSize + 7) / 8
-	r := new(big.Int).SetBytes(sig[size:])
-	s := new(big.Int).SetBytes(sig[:size])
+func TestVerify(pub *GostPubKey, e, r, s *big.Int) bool {
 	if e.Sign() == 0 {
 		e.SetInt64(1)
 	}
